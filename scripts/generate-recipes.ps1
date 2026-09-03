@@ -2,7 +2,7 @@
 #
 # Reads the default TACZ gunpack recipes, applies the tier map in
 # data/tier-map.json, and writes transformed copies into
-# build/00_tacz_tfc_progression/data/tacz/recipes/...
+# build/zz_tacz_tfc_progression/data/tacz/recipes/...
 #
 # Usage:
 #   .\scripts\generate-recipes.ps1 -DefaultPack <path to tacz_default_gun>
@@ -17,7 +17,7 @@ $ErrorActionPreference = 'Stop'
 
 $root    = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $mapPath = Join-Path $root 'data\tier-map.json'
-$outRoot = Join-Path $root 'build\00_tacz_tfc_progression\data\tacz\recipes'
+$outRoot = Join-Path $root 'build\zz_tacz_tfc_progression\data\tacz\recipes'
 
 if (-not (Test-Path $mapPath))       { throw "Missing tier map: $mapPath" }
 if (-not (Test-Path $DefaultPack))   { throw "Default pack not found: $DefaultPack" }

@@ -21,22 +21,22 @@ shadows the default recipes without touching them.
 - Drops into any modpack: copy the folder into `minecraft/tacz/`.
 - Fully portable and open-source.
 
-> **Why `00_`?** TACZ's gunpack loader wraps every folder in `tacz/` into one
-> aggregate pack where recipes resolve **first-wins** in directory enumeration
-> order (alphabetical on NTFS). The override folder is prefixed `00_` so it
-> enumerates *before* `tacz_default_gun` and wins the tie. Do not rename the
-> folder to something that sorts after `tacz_default_gun`, or the default
-> recipes will win and nothing will change.
+> **Why `zz_`?** TACZ merges every folder in `tacz/` into a single aggregate pack
+> and its recipe loader resolves duplicate recipe IDs **last-wins** in directory
+> enumeration order (alphabetical on NTFS). The override folder is prefixed
+> `zz_` so it enumerates *after* `tacz_default_gun` and wins the tie. Do not
+> rename the folder to something that sorts before `tacz_default_gun`, or the
+> default recipes will win and nothing will change.
 
 ## Install
 
-1. Copy the `00_tacz_tfc_progression` folder into your instance's
+1. Copy the `zz_tacz_tfc_progression` folder into your instance's
    `minecraft/tacz/` directory (next to `tacz_default_gun`).
 2. Launch / re-enter the world. No config, no commands.
 
 To distribute as a zip, run the build script (see below). Extract the zip
-inside `minecraft/tacz/` — it contains the correctly-named `00_tacz_tfc_progression`
-folder.
+inside `minecraft/tacz/` — it contains the correctly-named
+`zz_tacz_tfc_progression` folder.
 
 ## Build
 

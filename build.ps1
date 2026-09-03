@@ -1,11 +1,13 @@
 # Builds the portable TACZ override gunpack and zips it for distribution.
 #
-# The gunpack must enumerate BEFORE tacz_default_gun in the tacz/ directory,
-# because TACZ's DelegatingPackResources resolves recipes first-wins. We use a
-# leading "00_" so the folder sorts first on NTFS (alphabetical enumeration).
+# TACZ merges every folder in tacz/ into one aggregate pack and its recipe
+# loader (ResourceScanner / FileToIdConverter.listMatchingResources) resolves
+# duplicate recipe IDs LAST-WINS in directory enumeration order. We use a
+# leading "zz_" so this folder enumerates AFTER tacz_default_gun and wins the
+# tie (override takes effect).
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
-$src = Join-Path $root 'build\00_tacz_tfc_progression'
+$src = Join-Path $root 'build\zz_tacz_tfc_progression'
 $dist = Join-Path $root 'dist'
 
 if (-not (Test-Path $src)) { throw "Missing gunpack source: $src" }
