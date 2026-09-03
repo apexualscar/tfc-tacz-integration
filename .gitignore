@@ -1,6 +1,12 @@
 # Build artifacts
 *.zip
+*.jar
 /dist/
+/build/
+
+# Gradle
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
 
 # OS junk
 .DS_Store
@@ -9,3 +15,12 @@ Thumbs.db
 # Editor
 .idea/
 .vscode/
+*.iml
+*.ipr
+*.iws
+
+# Agent
+.opencode/
+
+# Local mod jars for dev
+libs/*.jar

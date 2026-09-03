@@ -1,0 +1,12 @@
+# Which TFC metal corresponds to each tier.
+# Item IDs must be valid Minecraft/TFC item IDs.
+# Edit this file to change what materials each tier requires.
+
+[tier_metals]
+t1 = "tfc:metal/ingot/wrought_iron"
+t2 = "tfc:metal/ingot/pig_iron"
+t3 = "tfc:metal/ingot/high_carbon_steel"
+t4 = "tfc:metal/ingot/steel"
+t5 = "tfc:metal/ingot/black_steel"
+t6 = "tfc:metal/ingot/blue_steel"
+t7 = "minecraft:netherite_ingot"
