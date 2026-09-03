@@ -21,7 +21,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: tacz-tfc-progression
+          name: tfc-tacz-integration
           path: dist/tacz_tfc_progression.zip
 
       - name: Create GitHub Release

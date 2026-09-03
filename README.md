@@ -1,4 +1,4 @@
-# TACZ × TerraFirmaCraft — Gun Recipe Progression
+# TFC TacZ Integration
 
 A standalone **TACZ gunpack override** that re-tiers every Timeless and Classics
 Zero (TACZ) crafting recipe to use **TerraFirmaCraft's iron progression** instead
