@@ -69,3 +69,14 @@ All tier decisions live in one file: `data/tier-map.json`. Edit the tier
 .\scripts\generate-recipes.ps1
 .\build.ps1
 ```
+
+## Crafting-station blocks
+The TACZ-built-in block recipes (crafted in the vanilla table) use vanilla iron. These are all re-tiered to **t1 Wrought Iron** (foundational infrastructure, not tiered like weapons):
+
+| Recipe | What changed |
+|--------|--------------|
+| \gun_smith_table\ | \orge:ingots/iron\ -> \	fc:metal/ingot/wrought_iron\; \minecraft:iron_block\ -> \	fc:metal/block/wrought_iron\ |
+| \iron_ammo_box\ | \orge:ingots/iron\ -> \	fc:metal/ingot/wrought_iron\ |
+| \ttachment_workbench\ | \orge:ingots/iron\ -> \	fc:metal/ingot/wrought_iron\ |
+| \mmo_workbench\ | \orge:ingots/iron\ -> \	fc:metal/ingot/wrought_iron\ |
+| \	arget\ | \orge:ingots/iron\ -> \	fc:metal/ingot/wrought_iron\ |
