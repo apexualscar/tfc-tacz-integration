@@ -35,6 +35,8 @@ jobs:
           path: build/libs/*.jar
 
       - name: Remove stale zip asset
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: gh release delete-asset ${GITHUB_REF_NAME} tacz_tfc_progression.zip --yes || true
 
       - name: Create GitHub Release
