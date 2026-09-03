@@ -1,0 +1,27 @@
+﻿{
+    "materials":  [
+                      {
+                          "item":  {
+                                       "tag":  "forge:ingots/gold"
+                                   },
+                          "count":  6
+                      },
+                      {
+                          "item":  {
+                                       "item":  "tfc:metal/ingot/high_carbon_steel"
+                                   },
+                          "count":  48
+                      },
+                      {
+                          "item":  {
+                                       "tag":  "forge:gems/quartz"
+                                   },
+                          "count":  3
+                      }
+                  ],
+    "result":  {
+                   "type":  "gun",
+                   "id":  "tacz:scar_l"
+               },
+    "type":  "tacz:gun_smith_table_crafting"
+}

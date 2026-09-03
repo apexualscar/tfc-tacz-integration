@@ -1,0 +1,21 @@
+﻿{
+    "materials":  [
+                      {
+                          "item":  {
+                                       "item":  "tfc:metal/ingot/high_carbon_steel"
+                                   },
+                          "count":  10
+                      },
+                      {
+                          "item":  {
+                                       "tag":  "forge:gems/amethyst"
+                                   },
+                          "count":  1
+                      }
+                  ],
+    "result":  {
+                   "type":  "attachment",
+                   "id":  "tacz:scope_98k"
+               },
+    "type":  "tacz:gun_smith_table_crafting"
+}

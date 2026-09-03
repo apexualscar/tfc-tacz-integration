@@ -1,0 +1,27 @@
+﻿{
+    "materials":  [
+                      {
+                          "item":  {
+                                       "item":  "tfc:metal/ingot/high_carbon_steel"
+                                   },
+                          "count":  36
+                      },
+                      {
+                          "item":  {
+                                       "tag":  "forge:gems/lapis"
+                                   },
+                          "count":  8
+                      },
+                      {
+                          "item":  {
+                                       "tag":  "minecraft:logs"
+                                   },
+                          "count":  6
+                      }
+                  ],
+    "result":  {
+                   "type":  "gun",
+                   "id":  "tacz:m16a4"
+               },
+    "type":  "tacz:gun_smith_table_crafting"
+}

@@ -1,0 +1,27 @@
+﻿{
+    "materials":  [
+                      {
+                          "item":  {
+                                       "tag":  "forge:ingots/gold"
+                                   },
+                          "count":  4
+                      },
+                      {
+                          "item":  {
+                                       "item":  "tfc:metal/ingot/high_carbon_steel"
+                                   },
+                          "count":  28
+                      },
+                      {
+                          "item":  {
+                                       "tag":  "forge:gems/lapis"
+                                   },
+                          "count":  2
+                      }
+                  ],
+    "result":  {
+                   "type":  "gun",
+                   "id":  "tacz:p320"
+               },
+    "type":  "tacz:gun_smith_table_crafting"
+}

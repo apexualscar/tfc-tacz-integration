@@ -1,0 +1,27 @@
+﻿{
+    "materials":  [
+                      {
+                          "item":  {
+                                       "tag":  "forge:ingots/gold"
+                                   },
+                          "count":  4
+                      },
+                      {
+                          "item":  {
+                                       "item":  "tfc:metal/ingot/steel"
+                                   },
+                          "count":  36
+                      },
+                      {
+                          "item":  {
+                                       "tag":  "forge:gems/lapis"
+                                   },
+                          "count":  2
+                      }
+                  ],
+    "result":  {
+                   "type":  "gun",
+                   "id":  "tacz:hk_mk23"
+               },
+    "type":  "tacz:gun_smith_table_crafting"
+}
