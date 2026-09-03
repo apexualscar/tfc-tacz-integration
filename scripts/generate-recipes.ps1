@@ -18,6 +18,7 @@ $ErrorActionPreference = 'Stop'
 $root    = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $mapPath = Join-Path $root 'data\tier-map.json'
 $outRoot = Join-Path $root 'build\zz_tacz_tfc_progression\data\tacz\recipes'
+$blockSrc = Join-Path $root 'data\block-recipes'
 
 if (-not (Test-Path $mapPath))       { throw "Missing tier map: $mapPath" }
 if (-not (Test-Path $DefaultPack))   { throw "Default pack not found: $DefaultPack" }
@@ -79,6 +80,15 @@ foreach ($cat in @('guns','ammo','attachments')) {
         $dir = if ($cat -eq 'guns') { 'gun' } else { $cat }
         if (Copy-Recipe $dir $_.Name $_.Value) { $total++ }
     }
+}
+
+# Copy the static vanilla shaped-recipes (crafting tables / ammo box / target)
+# that live in the TACZ mod jar, re-tiered to wrought iron. These go in the
+# recipes ROOT (vanilla RecipeManager path), unlike gun/ammo/attachments.
+if (-not (Test-Path $blockSrc)) { throw "Missing block recipes: $blockSrc" }
+foreach ($bf in (Get-ChildItem $blockSrc -Filter '*.json')) {
+    Copy-Item $bf.FullName (Join-Path $outRoot $bf.Name) -Force
+    $total++
 }
 
 Write-Host "Wrote $total override recipes to $outRoot"

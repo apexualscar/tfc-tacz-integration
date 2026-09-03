@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "result": {
+    "item": "tacz:target"
+  },
+  "pattern": [
+    "III",
+    "IRI",
+    " P "
+  ],
+  "key": {
+    "I": {
+      "item": "tfc:metal/ingot/wrought_iron"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    }
+  }
+}
