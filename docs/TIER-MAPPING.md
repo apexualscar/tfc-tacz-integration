@@ -14,7 +14,7 @@ with the matching TFC metal for that tier.
 | t4 | Steel | `tfc:metal/ingot/steel` | Refined steel |
 | t5 | Black Steel | `tfc:metal/ingot/black_steel` | High-grade tool steel |
 | t6 | Blue Steel | `tfc:metal/ingot/blue_steel` | Premium steel |
-| t7 | Industrial Iron | `minecraft:netherite_ingot` | End-game (netherite replacement) |
+| t7 | Blue Steel | `tfc:metal/ingot/blue_steel` | End-game (ex-stock netherite requirement) |
 
 ## Guns
 
@@ -36,19 +36,19 @@ with the matching TFC metal for that tier.
 ### t6 — Blue Steel (top-pressure snipers / minigun)
 `ai_awp`, `minigun`
 
-> `m107` / `m95` / `minigun` already carry a separate `forge:ingots/netherite`
-> line in their stock recipes; that line is left alone. Their main iron lines
-> move to the tier shown above.
+> `m107` / `m95` / `minigun` carry a separate `forge:ingots/netherite` line in
+> their stock recipes; that line maps to blue steel (`tfc:metal/ingot/blue_steel`).
 
 ## Ammunition
 
-Three ammo recipes use iron:
-- `12g` → t1 (wrought iron nuggets) — shotgun shells; the base for all shotgun ammunition
-- `40mm` → t2 (pig iron)
-- `rpg_rocket` → t3 (high carbon steel)
+All 24 ammo recipes are tiered and copper-cased, so their brass ingots follow:
 
-The rest are copper-cased and use `forge:ingots/copper`, which already resolves
-correctly in TFC, so they are left untouched.
+- **t1** — `12g`, `9mm`, `45acp`, `22wmr`, `762x25`, `357mag`
+- **t2** — `40mm`, `30_06`, `308`, `45_70`, `762x39`, `762x54`, `46x30`, `57x28`
+- **t3** — `rpg_rocket`, `556x45`, `545x39`, `792x57`, `500mag`, `50ae`, `338`, `58x42`, `68x51fury`
+- **t4** — `50bmg`
+
+Ammo cases use `tfc:metal/ingot/brass`; the lapis-tinted tracer ammo uses `tfc:metal/ingot/bismuth`.
 
 ## Attachments
 
@@ -60,6 +60,35 @@ Iron-using attachments are tiered by mechanical complexity and cost:
 - **t4** — modern optics / advanced muzzles: `scope_acog_ta31`, `scope_elcan_4x`, `scope_hamr`, `scope_lpvo_1_6`, `scope_qmk152`, `scope_standard_8x`, `scope_vudu`, `muzzle_brake_cthulhu`, `muzzle_brake_mastiff_sg`, `muzzle_brake_trex`, `muzzle_choke_sg`, `muzzle_silencer_knight_qd`, `muzzle_silencer_phantom_s1`, `muzzle_silencer_sg`, `muzzle_silencer_ursus`, `muzzle_silencer_vulture`, `laser_peq6`, `stock_heavy_spas_12`, `stock_tactical_ar`, `sight_552`, `sight_exp3`, `sight_uh1`, high-tier mags
 - **t5** — precision optics / golden parts: `scope_mk5hd`, `deagle_golden_long_barrel`, `sniper_extended_mag_2`
 - **t6** — endgame: `sniper_extended_mag_3`
+
+Ammo modifiers (`ammo_mod_*`) are also tiered:
+- **t2** — `ammo_mod_fmj`
+- **t3** — `ammo_mod_hp`, `ammo_mod_slug`
+- **t4** — `ammo_mod_he`, `ammo_mod_i`
+
+Their crying-obsidian base maps to `tfc:metal/ingot/black_bronze`; the `i` mod's
+blaze rod maps to `tfc:metal/rod/red_steel`; the `slug` mod's netherite scrap
+line maps to `tfc:metal/ingot/unknown`.
+
+## Non-iron ingredient substitutions
+
+Beyond the tier metal, stock TACZ ingredients that TFC cannot resolve are
+replaced. These apply in `RecipeTransformer.transformMaterials` and are
+mirrored in `scripts/generate-recipes.ps1`:
+
+| Stock ingredient | Replacement |
+|------------------|-------------|
+| `forge:gems/amethyst` | tag `tacz_tfc_integration:cut_gems` (9 TFC cut gems) |
+| `forge:gems/quartz` | `tfc:metal/ingot/weak_steel` |
+| `forge:rods/blaze` | `tfc:metal/rod/red_steel` |
+| `forge:gems/lapis` (guns) | `tfc:metal/ingot/nickel` |
+| `forge:gems/lapis` (ammo) | `tfc:metal/ingot/bismuth` |
+| `forge:gems/lapis` (attachments) | `tfc:metal/ingot/sterling_silver` |
+| `forge:ingots/copper` (ammo) | `tfc:metal/ingot/brass` |
+| `minecraft:crying_obsidian` (attachments) | `tfc:metal/ingot/black_bronze` |
+| `minecraft:ancient_debris` (attachments) | `tfc:metal/ingot/unknown` |
+| `forge:ingots/netherite` | `tfc:metal/ingot/blue_steel` |
+| `forge:ores/netherite_scrap` | `tfc:metal/ingot/unknown` |
 
 ## Editing the mapping
 
