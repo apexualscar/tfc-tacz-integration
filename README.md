@@ -6,7 +6,7 @@ onto TerraFirmaCraft's iron progression.
 TACZ recipes all want `forge:ingots/iron`. TFC has no vanilla iron ingot, so none
 of them are craftable in a TFC world.
 
-Iron in TFC comes in seven tiers, from wrought iron to industrial iron. This mod
+Iron in TFC comes in seven tiers, from wrought iron to blue/red steel. This mod
 maps each gun, attachment, and iron-using ammo recipe onto that ladder: cheaper,
 older weapons use early-game metal, modern high-pressure weapons need the
 expensive stuff.
