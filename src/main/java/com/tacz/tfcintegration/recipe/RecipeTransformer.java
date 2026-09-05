@@ -7,12 +7,15 @@ import com.tacz.tfcintegration.config.ModConfig;
 
 public class RecipeTransformer {
 
-    private static final String CUT_GEMS_TAG = "tacz_tfc_integration:cut_gems";
+    // Ammo material counts scale with the ammo tier: cheapest at t1 (50%),
+    // full price at the top ammo tier (t4).
+    private static final double[] AMMO_COST = {0.50, 0.67, 0.83, 1.00};
+    private static final double END_CRYSTAL_COUNT = 128;
 
     // Single substitution applied to every category.
     private static String swapAnywhere(String tag) {
         switch (tag) {
-            case "forge:gems/amethyst":      return "tag:" + CUT_GEMS_TAG;
+            case "forge:gems/amethyst":      return "item:tfc:gem/amethyst";
             case "forge:gems/quartz":        return "item:tfc:metal/ingot/weak_steel";
             case "forge:rods/blaze":         return "item:tfc:metal/rod/red_steel";
             case "forge:ingots/netherite":   return "item:tfc:metal/ingot/blue_steel";
@@ -38,10 +41,34 @@ public class RecipeTransformer {
                 case "forge:gems/lapis":         return "item:tfc:metal/ingot/sterling_silver";
                 case "minecraft:crying_obsidian": return "item:tfc:metal/ingot/black_bronze";
                 case "minecraft:ancient_debris":  return "item:tfc:metal/ingot/unknown";
+                case "minecraft:end_crystal":     return "item:minecraft:gunpowder";
                 default:                          return null;
             }
         }
         return null;
+    }
+
+    private static int ammoTierIndex(String tier) {
+        if (tier.startsWith("t") && tier.length() == 2) {
+            int n = tier.charAt(1) - '0';
+            if (n >= 1 && n <= 4) return n - 1;
+        }
+        return -1;
+    }
+
+    private static void scaleAmmoCosts(JsonArray materials, String tier) {
+        int idx = ammoTierIndex(tier);
+        if (idx < 0) return;
+        double factor = AMMO_COST[idx];
+        if (factor >= 1.0) return;
+        for (JsonElement element : materials) {
+            if (!element.isJsonObject()) continue;
+            JsonObject mat = element.getAsJsonObject();
+            if (!mat.has("count")) continue;
+            int old = mat.get("count").getAsInt();
+            int next = Math.max(1, (int) Math.round(old * factor));
+            if (next != old) mat.addProperty("count", next);
+        }
     }
 
     private static String resolveSub(String category, String id) {
@@ -60,7 +87,7 @@ public class RecipeTransformer {
         String metalName = metal.contains("/") ? metal.substring(metal.lastIndexOf('/') + 1) : metal;
 
         if (recipe.has("materials")) {
-            transformMaterials(recipe.getAsJsonArray("materials"), metal, metalName, category);
+            transformMaterials(recipe.getAsJsonArray("materials"), metal, metalName, category, tier);
         }
 
         if (recipe.has("key")) {
@@ -70,7 +97,10 @@ public class RecipeTransformer {
         return recipe;
     }
 
-    private static void transformMaterials(JsonArray materials, String metal, String metalName, String category) {
+    private static void transformMaterials(JsonArray materials, String metal, String metalName, String category, String tier) {
+        if ("ammo".equals(category)) {
+            scaleAmmoCosts(materials, tier);
+        }
         for (JsonElement element : materials) {
             if (!element.isJsonObject()) continue;
             JsonObject mat = element.getAsJsonObject();
@@ -92,6 +122,9 @@ public class RecipeTransformer {
                 } else if (itemObj.has("item")) {
                     String item = itemObj.get("item").getAsString();
                     String sub = resolveSub(category, item);
+                    if ("minecraft:end_crystal".equals(item)) {
+                        mat.addProperty("count", (int) END_CRYSTAL_COUNT);
+                    }
                     if (sub != null) applySub(itemObj, sub);
                 }
             }
