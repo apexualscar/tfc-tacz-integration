@@ -20,7 +20,7 @@
                       },
                       {
                           "item":  {
-                                       "tag":  "forge:rods/blaze"
+                                       "item":  "tfc:metal/rod/red_steel"
                                    },
                           "count":  4
                       }

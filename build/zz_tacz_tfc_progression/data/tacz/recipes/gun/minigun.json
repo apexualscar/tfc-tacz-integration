@@ -14,7 +14,7 @@
                       },
                       {
                           "item":  {
-                                       "tag":  "forge:ingots/netherite"
+                                       "item":  "tfc:metal/ingot/blue_steel"
                                    },
                           "count":  10
                       },
@@ -26,7 +26,7 @@
                       },
                       {
                           "item":  {
-                                       "tag":  "forge:rods/blaze"
+                                       "item":  "tfc:metal/rod/red_steel"
                                    },
                           "count":  10
                       }

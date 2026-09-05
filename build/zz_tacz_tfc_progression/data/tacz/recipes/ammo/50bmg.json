@@ -1,0 +1,34 @@
+﻿{
+    "materials":  [
+                      {
+                          "item":  {
+                                       "item":  "tfc:metal/ingot/brass"
+                                   },
+                          "count":  110
+                      },
+                      {
+                          "item":  {
+                                       "tag":  "forge:gunpowder"
+                                   },
+                          "count":  20
+                      },
+                      {
+                          "item":  {
+                                       "item":  "tfc:metal/ingot/bismuth"
+                                   },
+                          "count":  12
+                      },
+                      {
+                          "item":  {
+                                       "item":  "tfc:metal/rod/red_steel"
+                                   }
+                      }
+                  ],
+    "result":  {
+                   "type":  "ammo",
+                   "group":  "lc_specialized",
+                   "id":  "tacz:50bmg",
+                   "count":  24
+               },
+    "type":  "tacz:gun_smith_table_crafting"
+}

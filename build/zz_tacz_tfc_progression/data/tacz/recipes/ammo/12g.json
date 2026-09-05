@@ -1,0 +1,29 @@
+﻿{
+    "materials":  [
+                      {
+                          "item":  {
+                                       "item":  "tfc:metal/ingot/brass"
+                                   },
+                          "count":  15
+                      },
+                      {
+                          "item":  {
+                                       "tag":  "forge:gunpowder"
+                                   },
+                          "count":  6
+                      },
+                      {
+                          "item":  {
+                                       "item":  "tfc:metal/nugget/wrought_iron"
+                                   },
+                          "count":  2
+                      }
+                  ],
+    "result":  {
+                   "type":  "ammo",
+                   "group":  "shotgun_shells",
+                   "id":  "tacz:12g",
+                   "count":  18
+               },
+    "type":  "tacz:gun_smith_table_crafting"
+}

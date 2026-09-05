@@ -14,7 +14,7 @@
                       },
                       {
                           "item":  {
-                                       "tag":  "forge:gems/lapis"
+                                       "item":  "tfc:metal/ingot/nickel"
                                    },
                           "count":  6
                       }

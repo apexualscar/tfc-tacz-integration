@@ -14,7 +14,7 @@
                       },
                       {
                           "item":  {
-                                       "tag":  "forge:gems/quartz"
+                                       "item":  "tfc:metal/ingot/weak_steel"
                                    },
                           "count":  5
                       }

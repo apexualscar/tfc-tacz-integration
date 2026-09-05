@@ -1,0 +1,29 @@
+﻿{
+    "materials":  [
+                      {
+                          "item":  {
+                                       "item":  "tfc:metal/ingot/brass"
+                                   },
+                          "count":  15
+                      },
+                      {
+                          "item":  {
+                                       "item":  "tfc:metal/ingot/bismuth"
+                                   },
+                          "count":  5
+                      },
+                      {
+                          "item":  {
+                                       "tag":  "forge:gunpowder"
+                                   },
+                          "count":  2
+                      }
+                  ],
+    "result":  {
+                   "type":  "ammo",
+                   "group":  "pd_cartridges",
+                   "id":  "tacz:57x28",
+                   "count":  48
+               },
+    "type":  "tacz:gun_smith_table_crafting"
+}

@@ -14,13 +14,13 @@
                       },
                       {
                           "item":  {
-                                       "tag":  "forge:gems/lapis"
+                                       "item":  "tfc:metal/ingot/nickel"
                                    },
                           "count":  16
                       },
                       {
                           "item":  {
-                                       "tag":  "forge:gems/quartz"
+                                       "item":  "tfc:metal/ingot/weak_steel"
                                    },
                           "count":  8
                       }
