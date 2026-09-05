@@ -7,12 +7,60 @@ import com.tacz.tfcintegration.config.ModConfig;
 
 public class RecipeTransformer {
 
+    private static final String CUT_GEMS_TAG = "tacz_tfc_integration:cut_gems";
+
+    // Single substitution applied to every category.
+    private static String swapAnywhere(String tag) {
+        switch (tag) {
+            case "forge:gems/amethyst":      return "tag:" + CUT_GEMS_TAG;
+            case "forge:gems/quartz":        return "item:tfc:metal/ingot/weak_steel";
+            case "forge:rods/blaze":         return "item:tfc:metal/rod/red_steel";
+            case "forge:ingots/netherite":   return "item:tfc:metal/ingot/blue_steel";
+            case "forge:ores/netherite_scrap": return "item:tfc:metal/ingot/unknown";
+            default:                          return null;
+        }
+    }
+
+    // Category-scoped substitutions (guns/ammo/attachments).
+    private static String swapForCategory(String category, String id) {
+        if ("ammo".equals(category)) {
+            switch (id) {
+                case "forge:ingots/copper": return "item:tfc:metal/ingot/brass";
+                case "forge:gems/lapis":    return "item:tfc:metal/ingot/bismuth";
+                default:                    return null;
+            }
+        }
+        if ("guns".equals(category) && "forge:gems/lapis".equals(id)) {
+            return "item:tfc:metal/ingot/nickel";
+        }
+        if ("attachments".equals(category)) {
+            switch (id) {
+                case "forge:gems/lapis":         return "item:tfc:metal/ingot/sterling_silver";
+                case "minecraft:crying_obsidian": return "item:tfc:metal/ingot/black_bronze";
+                case "minecraft:ancient_debris":  return "item:tfc:metal/ingot/unknown";
+                default:                          return null;
+            }
+        }
+        return null;
+    }
+
+    private static String resolveSub(String category, String id) {
+        String any = swapAnywhere(id);
+        if (any != null) return any;
+        if (category != null) return swapForCategory(category, id);
+        return null;
+    }
+
     public static JsonObject transform(JsonObject recipe, String tier) {
+        return transform(recipe, tier, null);
+    }
+
+    public static JsonObject transform(JsonObject recipe, String tier, String category) {
         String metal = ModConfig.getMetalForTier(tier);
         String metalName = metal.contains("/") ? metal.substring(metal.lastIndexOf('/') + 1) : metal;
 
         if (recipe.has("materials")) {
-            transformMaterials(recipe.getAsJsonArray("materials"), metal, metalName);
+            transformMaterials(recipe.getAsJsonArray("materials"), metal, metalName, category);
         }
 
         if (recipe.has("key")) {
@@ -22,7 +70,7 @@ public class RecipeTransformer {
         return recipe;
     }
 
-    private static void transformMaterials(JsonArray materials, String metal, String metalName) {
+    private static void transformMaterials(JsonArray materials, String metal, String metalName, String category) {
         for (JsonElement element : materials) {
             if (!element.isJsonObject()) continue;
             JsonObject mat = element.getAsJsonObject();
@@ -37,9 +85,26 @@ public class RecipeTransformer {
                     } else if ("forge:nuggets/iron".equals(tag)) {
                         itemObj.remove("tag");
                         replaceNuggets(itemObj, mat, metal, metalName);
+                    } else {
+                        String sub = resolveSub(category, tag);
+                        if (sub != null) applySub(itemObj, sub);
                     }
+                } else if (itemObj.has("item")) {
+                    String item = itemObj.get("item").getAsString();
+                    String sub = resolveSub(category, item);
+                    if (sub != null) applySub(itemObj, sub);
                 }
             }
+        }
+    }
+
+    private static void applySub(JsonObject itemObj, String sub) {
+        itemObj.remove("tag");
+        itemObj.remove("item");
+        if (sub.startsWith("tag:")) {
+            itemObj.addProperty("tag", sub.substring(4));
+        } else {
+            itemObj.addProperty("item", sub.substring(5));
         }
     }
 
