@@ -18,6 +18,7 @@ $ErrorActionPreference = 'Stop'
 $root    = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $mapPath = Join-Path $root 'data\tier-map.json'
 $outRoot = Join-Path $root 'build\zz_tacz_tfc_progression\data\tacz\recipes'
+$packRoot = Join-Path $root 'build\zz_tacz_tfc_progression'
 $blockSrc = Join-Path $root 'data\block-recipes'
 $staticSrc = Join-Path $root 'src\main\resources\data\tacz_tfc_integration\static_recipes'
 
@@ -35,7 +36,7 @@ function Resolve-Sub([string]$category, [string]$id) {
     # Mirrors RecipeTransformer: returns @{ tag = ... } or @{ item = ... },
     # or $null if no substitution applies.
     switch ($id) {
-        'forge:gems/amethyst'        { return @{ tag = 'tacz_tfc_integration:cut_gems' } }
+        'forge:gems/amethyst'        { return @{ item = 'tfc:gem/amethyst' } }
         'forge:gems/quartz'          { return @{ item = 'tfc:metal/ingot/weak_steel' } }
         'forge:rods/blaze'           { return @{ item = 'tfc:metal/rod/red_steel' } }
         'forge:ingots/netherite'     { return @{ item = 'tfc:metal/ingot/blue_steel' } }
@@ -55,6 +56,7 @@ function Resolve-Sub([string]$category, [string]$id) {
             'forge:gems/lapis'          { return @{ item = 'tfc:metal/ingot/sterling_silver' } }
             'minecraft:crying_obsidian' { return @{ item = 'tfc:metal/ingot/black_bronze' } }
             'minecraft:ancient_debris'  { return @{ item = 'tfc:metal/ingot/unknown' } }
+            'minecraft:end_crystal'     { return @{ item = 'minecraft:gunpowder' } }
         }
     }
     return $null
@@ -66,6 +68,79 @@ function Apply-Sub($itemObj, $sub) {
     $itemObj.PSObject.Properties.Remove('item')
     if ($sub.ContainsKey('tag')) { $itemObj | Add-Member -NotePropertyName tag -NotePropertyValue $sub.tag }
     else                         { $itemObj | Add-Member -NotePropertyName item -NotePropertyValue $sub.item }
+    return $true
+}
+
+# TACZ gun data files carry // and /* */ comments; strip them before ConvertFrom-Json.
+function Remove-JsonComments([string]$text) {
+    $sb = New-Object System.Text.StringBuilder
+    $inString = $false; $inLine = $false; $inBlock = $false
+    for ($i = 0; $i -lt $text.Length; $i++) {
+        $c = $text[$i]
+        $next = if ($i + 1 -lt $text.Length) { $text[$i + 1] } else { [char]0 }
+        if ($inLine) {
+            if ($c -eq "`n") { $inLine = $false; [void]$sb.Append($c) }
+            continue
+        }
+        if ($inBlock) {
+            if ($c -eq '*' -and $next -eq '/') { $inBlock = $false; $i++ }
+            continue
+        }
+        if ($inString) {
+            [void]$sb.Append($c)
+            if ($c -eq '\' -and $i + 1 -lt $text.Length) { [void]$sb.Append($text[$i + 1]); $i++ }
+            elseif ($c -eq '"') { $inString = $false }
+            continue
+        }
+        if ($c -eq '"') { $inString = $true; [void]$sb.Append($c); continue }
+        if ($c -eq '/' -and $next -eq '/') { $inLine = $true; $i++; continue }
+        if ($c -eq '/' -and $next -eq '*') { $inBlock = $true; $i++; continue }
+        [void]$sb.Append($c)
+    }
+    return $sb.ToString()
+}
+
+$damageScale = @{ t1 = 0.30; t2 = 0.44; t3 = 0.58; t4 = 0.72; t5 = 0.86; t6 = 1.00 }
+$round1 = { param($v) [Math]::Round([double]$v * 10) / 10.0 }
+
+function Copy-GunData([string]$gunId, [string]$tier) {
+    $src = Join-Path $DefaultPack "data\tacz\data\guns\$gunId`_data.json"
+    if (-not (Test-Path $src)) {
+        Write-Warning "Gun data not found: $gunId"
+        return $false
+    }
+    $clean = Remove-JsonComments ((Get-Content $src -Raw) -replace "`r`n", "`n")
+    $data = $clean | ConvertFrom-Json
+
+    $m = if ($damageScale.ContainsKey($tier)) { $damageScale[$tier] } else { 1.0 }
+    if ($data.ammo -eq 'tacz:12g' -and $null -ne $data.bullet -and $null -ne $data.bullet.damage) {
+        $floor = 16.0 / [double]$data.bullet.damage
+        if ($floor -gt $m) { $m = $floor }
+    }
+
+    if ($null -ne $data.bullet -and $null -ne $data.bullet.damage) {
+        $data.bullet.damage = & $round1 ([double]$data.bullet.damage * $m)
+    }
+    if ($null -ne $data.bullet.extra_damage -and $data.bullet.extra_damage.damage_adjust) {
+        foreach ($adj in $data.bullet.extra_damage.damage_adjust) { $adj.damage = & $round1 ([double]$adj.damage * $m) }
+    }
+    if ($null -ne $data.bullet.explosion -and $null -ne $data.bullet.explosion.damage) {
+        $data.bullet.explosion.damage = & $round1 ([double]$data.bullet.explosion.damage * $m)
+    }
+    if ($null -ne $data.fire_mode_adjust) {
+        foreach ($prop in ($data.fire_mode_adjust.PSObject.Properties)) {
+            if ($prop.Value -and $prop.Value.PSObject.Properties.Name -contains 'damage') {
+                $prop.Value.damage = & $round1 ([double]$prop.Value.damage * $m)
+            }
+        }
+    }
+    if ($null -ne $data.melee -and $null -ne $data.melee.default -and $null -ne $data.melee.default.damage) {
+        $data.melee.default.damage = & $round1 ([double]$data.melee.default.damage * $m)
+    }
+
+    $destDir = Join-Path $packRoot 'data\tacz\data\guns'
+    New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+    $data | ConvertTo-Json -Depth 20 | Set-Content -Path (Join-Path $destDir "$gunId`_data.json") -Encoding UTF8
     return $true
 }
 
@@ -81,6 +156,18 @@ function Copy-Recipe([string]$dir, [string]$category, [string]$id, [string]$tier
     $ironMetal = ($ironItem -split '/')[-1]
     $changed = $false
     $netherite = $ironItem -eq 'minecraft:netherite_ingot'
+
+    $ammoLadder = @{ t1 = 0.50; t2 = 0.67; t3 = 0.83; t4 = 1.00 }
+    if ($category -eq 'ammo' -and $ammoLadder.ContainsKey($tier)) {
+        $factor = $ammoLadder[$tier]
+        if ($factor -lt 1.0) {
+            foreach ($m in $recipe.materials) {
+                if ($null -ne $m -and $m.PSObject.Properties.Name -contains 'count') {
+                    $m.count = [Math]::Max(1, [Math]::Round($m.count * $factor))
+                }
+            }
+        }
+    }
 
     foreach ($m in $recipe.materials) {
         $itemObj = $m.item
@@ -109,7 +196,13 @@ function Copy-Recipe([string]$dir, [string]$category, [string]$id, [string]$tier
             continue
         }
         if ($tag) { $sub = Resolve-Sub $category $tag }
-        elseif ($item) { $sub = Resolve-Sub $category $item }
+        elseif ($item) {
+            if ($item -eq 'minecraft:end_crystal') {
+                if ($m.PSObject.Properties.Name -contains 'count') { $m.count = 128 }
+                else { $m | Add-Member -NotePropertyName count -NotePropertyValue 128 }
+            }
+            $sub = Resolve-Sub $category $item
+        }
         if ($sub) {
             $itemObj.PSObject.Properties.Remove('tag')
             $itemObj.PSObject.Properties.Remove('item')
@@ -152,6 +245,12 @@ foreach ($cat in @('guns','ammo','attachments')) {
         }
     }
 }
+
+$gunCount = 0
+foreach ($g in $map.guns.PSObject.Properties) {
+    if (Copy-GunData $g.Name $g.Value) { $gunCount++ }
+}
+Write-Host "Wrote $gunCount gun data overrides"
 
 # Copy the static vanilla shaped-recipes (crafting tables / ammo box / target)
 # that live in the TACZ mod jar, re-tiered to wrought iron. These go in the

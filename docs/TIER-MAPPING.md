@@ -19,10 +19,10 @@ with the matching TFC metal for that tier.
 ## Guns
 
 ### t1 — Wrought Iron (early / simple / cheap)
-`springfield1873`, `db_short`, `db_long`, `m1911`, `cz75`, `glock_17`, `m9a4`, `uzi`, `m870`
+`springfield1873` (45_70), `db_short` (12g), `db_long` (12g), `m870` (12g), `m1911` (45acp)
 
 ### t2 — Pig Iron (early blowback / classic action)
-`b93r`, `hk_mp5a5`, `sks_tactical`, `m16a1`, `type_81`, `qbz_95`, `lonetrail`, `rhino357`
+`cz75`, `glock_17`, `m9a4`, `uzi` (9mm moved t1→t2), `b93r`, `hk_mp5a5`, `sks_tactical`, `m16a1`, `type_81`, `qbz_95`, `lonetrail`, `rhino357`
 
 ### t3 — High Carbon Steel (WWII–mid-century rifles)
 `ak47`, `m4a1`, `m16a4`, `fn_fal`, `hk_g3`, `kar98`, `m700`, `p320`, `g36k`, `scar_l`, `rpk`, `rpg7`
@@ -43,8 +43,8 @@ with the matching TFC metal for that tier.
 
 All 24 ammo recipes are tiered and copper-cased, so their brass ingots follow:
 
-- **t1** — `12g`, `9mm`, `45acp`, `22wmr`, `762x25`, `357mag`
-- **t2** — `40mm`, `30_06`, `308`, `45_70`, `762x39`, `762x54`, `46x30`, `57x28`
+- **t1** — `12g`, `45acp`, `22wmr`, `762x25`, `357mag`
+- **t2** — `9mm` (moved t1→t2), `40mm`, `30_06`, `308`, `45_70`, `762x39`, `762x54`, `46x30`, `57x28`
 - **t3** — `rpg_rocket`, `556x45`, `545x39`, `792x57`, `500mag`, `50ae`, `338`, `58x42`, `68x51fury`
 - **t4** — `50bmg`
 
@@ -78,7 +78,7 @@ mirrored in `scripts/generate-recipes.ps1`:
 
 | Stock ingredient | Replacement |
 |------------------|-------------|
-| `forge:gems/amethyst` | tag `tacz_tfc_integration:cut_gems` (9 TFC cut gems) |
+| `forge:gems/amethyst` | `tfc:gem/amethyst` (cut amethyst) |
 | `forge:gems/quartz` | `tfc:metal/ingot/weak_steel` |
 | `forge:rods/blaze` | `tfc:metal/rod/red_steel` |
 | `forge:gems/lapis` (guns) | `tfc:metal/ingot/nickel` |
@@ -86,9 +86,44 @@ mirrored in `scripts/generate-recipes.ps1`:
 | `forge:gems/lapis` (attachments) | `tfc:metal/ingot/sterling_silver` |
 | `forge:ingots/copper` (ammo) | `tfc:metal/ingot/brass` |
 | `minecraft:crying_obsidian` (attachments) | `tfc:metal/ingot/black_bronze` |
+| `minecraft:end_crystal` (attachments) | `minecraft:gunpowder` × 128 |
 | `minecraft:ancient_debris` (attachments) | `tfc:metal/ingot/unknown` |
 | `forge:ingots/netherite` | `tfc:metal/ingot/blue_steel` |
 | `forge:ores/netherite_scrap` | `tfc:metal/ingot/unknown` |
+
+## Gun damage scaling (`GunDataGenerator`)
+
+Per-tier damage multiplier on every gun's base damage, scaled from the stock
+TACZ values in `tacz_default_gun/data/tacz/data/guns/`:
+
+| Tier | Damage multiplier |
+|------|-------------------|
+| t1 | 0.30 |
+| t2 | 0.44 |
+| t3 | 0.58 |
+| t4 | 0.72 |
+| t5 | 0.86 |
+| t6 | 1.00 |
+
+Shotguns (`tacz:12g`) get a point-blank floor at **16 HP**: if
+`tier_mult × bullet.damage < 16`, the gun is clamped up to 16 (`db_short`,
+`db_long`, `m870`). Overrides are written to
+`<game>/tacz/zz_tacz_tfc_integration/data/tacz/data/guns/<id>_data.json`.
+
+## Ammo cost ladder
+
+Ammo-category recipes are discounted at lower tiers, applied to all material
+counts (before the nugget→ingot conversion, round half-up, min 1):
+
+| Tier | Cost factor |
+|------|-------------|
+| t1 | 0.50 |
+| t2 | 0.67 |
+| t3 | 0.83 |
+| t4 | 1.00 |
+
+Example: `12g` copper 15→8, gunpowder 6→3, iron 18 nuggets→9→1 ingot.
+`50bmg` (t4) is unchanged.
 
 ## Editing the mapping
 
