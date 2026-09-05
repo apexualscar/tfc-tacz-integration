@@ -19,9 +19,10 @@ $root    = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $mapPath = Join-Path $root 'data\tier-map.json'
 $outRoot = Join-Path $root 'build\zz_tacz_tfc_progression\data\tacz\recipes'
 $blockSrc = Join-Path $root 'data\block-recipes'
+$staticSrc = Join-Path $root 'src\main\resources\data\tacz_tfc_integration\static_recipes'
 
-if (-not (Test-Path $mapPath))       { throw "Missing tier map: $mapPath" }
-if (-not (Test-Path $DefaultPack))   { throw "Default pack not found: $DefaultPack" }
+if (-not (Test-Path $mapPath))     { throw "Missing tier map: $mapPath" }
+if (-not (Test-Path $DefaultPack)) { throw "Default pack not found: $DefaultPack" }
 
 $map = Get-Content $mapPath -Raw | ConvertFrom-Json
 
@@ -30,44 +31,100 @@ function Get-Material([string]$id) {
     return $map.material_map.$id.item
 }
 
-function Resolve-SubPath([string]$category, [string]$id) {
-    return (Join-Path $category "$id.json")
+function Resolve-Sub([string]$category, [string]$id) {
+    # Mirrors RecipeTransformer: returns @{ tag = ... } or @{ item = ... },
+    # or $null if no substitution applies.
+    switch ($id) {
+        'forge:gems/amethyst'        { return @{ tag = 'tacz_tfc_integration:cut_gems' } }
+        'forge:gems/quartz'          { return @{ item = 'tfc:metal/ingot/weak_steel' } }
+        'forge:rods/blaze'           { return @{ item = 'tfc:metal/rod/red_steel' } }
+        'forge:ingots/netherite'     { return @{ item = 'tfc:metal/ingot/blue_steel' } }
+        'forge:ores/netherite_scrap' { return @{ item = 'tfc:metal/ingot/unknown' } }
+    }
+    if ($category -eq 'guns' -and $id -eq 'forge:gems/lapis') {
+        return @{ item = 'tfc:metal/ingot/nickel' }
+    }
+    if ($category -eq 'ammo') {
+        switch ($id) {
+            'forge:ingots/copper' { return @{ item = 'tfc:metal/ingot/brass' } }
+            'forge:gems/lapis'    { return @{ item = 'tfc:metal/ingot/bismuth' } }
+        }
+    }
+    if ($category -eq 'attachments') {
+        switch ($id) {
+            'forge:gems/lapis'          { return @{ item = 'tfc:metal/ingot/sterling_silver' } }
+            'minecraft:crying_obsidian' { return @{ item = 'tfc:metal/ingot/black_bronze' } }
+            'minecraft:ancient_debris'  { return @{ item = 'tfc:metal/ingot/unknown' } }
+        }
+    }
+    return $null
 }
 
-function Copy-Recipe([string]$category, [string]$id, [string]$tier) {
-    $src = Join-Path $DefaultPack "data\tacz\recipes\$category\$id.json"
+function Apply-Sub($itemObj, $sub) {
+    if ($sub -eq $null) { return $false }
+    $itemObj.PSObject.Properties.Remove('tag')
+    $itemObj.PSObject.Properties.Remove('item')
+    if ($sub.ContainsKey('tag')) { $itemObj | Add-Member -NotePropertyName tag -NotePropertyValue $sub.tag }
+    else                         { $itemObj | Add-Member -NotePropertyName item -NotePropertyValue $sub.item }
+    return $true
+}
+
+function Copy-Recipe([string]$dir, [string]$category, [string]$id, [string]$tier) {
+    $src = Join-Path $DefaultPack "data\tacz\recipes\$dir\$id.json"
     if (-not (Test-Path $src)) {
-        Write-Warning "Recipe not found in default pack: $category/$id.json"
+        Write-Warning "Recipe not found in default pack: $dir/$id.json"
         return $false
     }
 
     $recipe = Get-Content $src -Raw | ConvertFrom-Json
     $ironItem = Get-Material $tier
+    $ironMetal = ($ironItem -split '/')[-1]
     $changed = $false
+    $netherite = $ironItem -eq 'minecraft:netherite_ingot'
 
     foreach ($m in $recipe.materials) {
-        $tag = $m.item.tag
+        $itemObj = $m.item
+        if ($null -eq $itemObj) { continue }
+        $tag = $itemObj.tag
+        $item = $itemObj.item
+
+        $sub = $null
         if ($tag -eq 'forge:ingots/iron') {
-            $m.item = [ordered]@{ item = $ironItem }
+            $itemObj | Add-Member -NotePropertyName item -NotePropertyValue $ironItem -Force
+            $itemObj.PSObject.Properties.Remove('tag')
             $changed = $true
+            continue
         }
-        elseif ($tag -eq 'forge:nuggets/iron') {
-            $metal = ($ironItem -split '/')[-1]
-            if ($ironItem -eq 'minecraft:netherite_ingot') {
-                $m.item = [ordered]@{ item = 'minecraft:netherite_scrap' }
+        if ($tag -eq 'forge:nuggets/iron') {
+            if ($netherite) {
+                $itemObj | Add-Member -NotePropertyName item -NotePropertyValue 'minecraft:netherite_scrap' -Force
             } else {
-                $m.item = [ordered]@{ item = "tfc:metal/nugget/$metal" }
+                $itemObj | Add-Member -NotePropertyName item -NotePropertyValue "tfc:metal/nugget/$ironMetal" -Force
             }
+            $itemObj.PSObject.Properties.Remove('tag')
+            if ($m.PSObject.Properties.Name -contains 'count') {
+                $m.count = [Math]::Max(1, [Math]::Round($m.count / 9.0))
+            }
+            $changed = $true
+            continue
+        }
+        if ($tag) { $sub = Resolve-Sub $category $tag }
+        elseif ($item) { $sub = Resolve-Sub $category $item }
+        if ($sub) {
+            $itemObj.PSObject.Properties.Remove('tag')
+            $itemObj.PSObject.Properties.Remove('item')
+            if ($sub.ContainsKey('tag')) { $itemObj | Add-Member -NotePropertyName tag -NotePropertyValue $sub.tag }
+            else                         { $itemObj | Add-Member -NotePropertyName item -NotePropertyValue $sub.item }
             $changed = $true
         }
     }
 
     if (-not $changed) {
-        Write-Warning "No iron material to substitute in $category/$id (skipping)"
+        Write-Warning "No substitutable material in $dir/$id (skipping)"
         return $false
     }
 
-    $destDir = Join-Path $outRoot $category
+    $destDir = Join-Path $outRoot $dir
     New-Item -ItemType Directory -Path $destDir -Force | Out-Null
     $dest = Join-Path $destDir "$id.json"
     $recipe | ConvertTo-Json -Depth 20 | Set-Content -Path $dest -Encoding UTF8
@@ -76,9 +133,23 @@ function Copy-Recipe([string]$category, [string]$id, [string]$tier) {
 
 $total = 0
 foreach ($cat in @('guns','ammo','attachments')) {
+    $dir = if ($cat -eq 'guns') { 'gun' } else { $cat }
     $map.$cat.PSObject.Properties | ForEach-Object {
-        $dir = if ($cat -eq 'guns') { 'gun' } else { $cat }
-        if (Copy-Recipe $dir $_.Name $_.Value) { $total++ }
+        $src = Join-Path $DefaultPack "data\tacz\recipes\$dir\$($_.Name).json"
+        if (Test-Path $src) {
+            if (Copy-Recipe $dir $cat $_.Name $_.Value) { $total++ }
+        } else {
+            # Recipes with no default in the TACZ pack come from bundled resources.
+            $bundled = Join-Path $staticSrc "$dir\$($_.Name).json"
+            if (Test-Path $bundled) {
+                $destDir = Join-Path $outRoot $dir
+                New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+                Copy-Item $bundled (Join-Path $destDir "$($_.Name).json") -Force
+                $total++
+            } else {
+                Write-Warning "No default or bundled recipe for $dir/$($_.Name)"
+            }
+        }
     }
 }
 
