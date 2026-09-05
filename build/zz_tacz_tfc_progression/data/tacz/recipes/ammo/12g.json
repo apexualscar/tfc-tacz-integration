@@ -4,19 +4,19 @@
                           "item":  {
                                        "item":  "tfc:metal/ingot/brass"
                                    },
-                          "count":  15
+                          "count":  8
                       },
                       {
                           "item":  {
                                        "tag":  "forge:gunpowder"
                                    },
-                          "count":  6
+                          "count":  3
                       },
                       {
                           "item":  {
                                        "item":  "tfc:metal/nugget/wrought_iron"
                                    },
-                          "count":  2
+                          "count":  1
                       }
                   ],
     "result":  {

@@ -4,19 +4,19 @@
                           "item":  {
                                        "item":  "tfc:metal/ingot/high_carbon_steel"
                                    },
-                          "count":  3
+                          "count":  2
                       },
                       {
                           "item":  {
                                        "item":  "tfc:metal/ingot/brass"
                                    },
-                          "count":  30
+                          "count":  25
                       },
                       {
                           "item":  {
                                        "tag":  "forge:gunpowder"
                                    },
-                          "count":  12
+                          "count":  10
                       }
                   ],
     "result":  {

@@ -4,13 +4,13 @@
                           "item":  {
                                        "item":  "tfc:metal/ingot/brass"
                                    },
-                          "count":  10
+                          "count":  7
                       },
                       {
                           "item":  {
                                        "tag":  "forge:gunpowder"
                                    },
-                          "count":  2
+                          "count":  1
                       }
                   ],
     "result":  {

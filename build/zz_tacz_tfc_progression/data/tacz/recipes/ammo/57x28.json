@@ -4,19 +4,19 @@
                           "item":  {
                                        "item":  "tfc:metal/ingot/brass"
                                    },
-                          "count":  15
+                          "count":  10
                       },
                       {
                           "item":  {
                                        "item":  "tfc:metal/ingot/bismuth"
                                    },
-                          "count":  5
+                          "count":  3
                       },
                       {
                           "item":  {
                                        "tag":  "forge:gunpowder"
                                    },
-                          "count":  2
+                          "count":  1
                       }
                   ],
     "result":  {

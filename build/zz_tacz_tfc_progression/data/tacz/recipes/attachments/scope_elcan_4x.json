@@ -8,7 +8,7 @@
                       },
                       {
                           "item":  {
-                                       "tag":  "tacz_tfc_integration:cut_gems"
+                                       "item":  "tfc:gem/amethyst"
                                    },
                           "count":  5
                       },

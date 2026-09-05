@@ -2,7 +2,7 @@
     "materials":  [
                       {
                           "item":  {
-                                       "item":  "tfc:metal/ingot/wrought_iron"
+                                       "item":  "tfc:metal/ingot/pig_iron"
                                    },
                           "count":  17
                       }

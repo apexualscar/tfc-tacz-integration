@@ -8,8 +8,9 @@
                       },
                       {
                           "item":  {
-                                       "item":  "minecraft:end_crystal"
-                                   }
+                                       "item":  "minecraft:gunpowder"
+                                   },
+                          "count":  128
                       }
                   ],
     "result":  {
