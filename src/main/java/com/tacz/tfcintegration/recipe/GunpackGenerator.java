@@ -48,7 +48,9 @@ public class GunpackGenerator {
                 count += generateCategory(category, gunpackDir);
             }
 
-            Files.writeString(sentinel, String.valueOf(System.currentTimeMillis()));
+            if (count > 0) {
+                Files.writeString(sentinel, String.valueOf(System.currentTimeMillis()));
+            }
             LOGGER.info("Generated {} override recipes", count);
         } catch (IOException e) {
             LOGGER.error("Failed to generate gunpack", e);
@@ -100,23 +102,41 @@ public class GunpackGenerator {
     }
 
     private static JsonObject readDefaultRecipe(String category, String recipeId) {
-        try {
-            var modFile = ModList.get().getModFileById("tacz");
-            if (modFile == null) {
-                LOGGER.warn("TACZ mod not found");
-                return null;
-            }
+        String dirName = "gun".equals(category) ? "gun" : category;
+        String fileName = recipeId + ".json";
 
-            String dirName = "gun".equals(category) ? "gun" : category;
-            String path = "data/tacz/recipes/" + dirName + "/" + recipeId + ".json";
-            var resource = modFile.getFile().findResource(path);
-            if (resource == null) return null;
+        Path unpacked = FMLPaths.GAMEDIR.get().resolve("tacz").resolve("tacz_default_gun")
+            .resolve("data").resolve("tacz").resolve("recipes").resolve(dirName).resolve(fileName);
+        JsonObject recipe = readJson(unpacked);
+        if (recipe != null) return recipe;
 
-            try (InputStream in = Files.newInputStream(resource)) {
-                return JsonParser.parseReader(new InputStreamReader(in)).getAsJsonObject();
+        var modFile = ModList.get().getModFileById("tacz");
+        if (modFile != null) {
+            for (String prefix : new String[]{
+                "assets/tacz/custom/tacz_default_gun/data/tacz/recipes/",
+                "data/tacz/recipes/"
+            }) {
+                var resource = modFile.getFile().findResource(prefix + dirName + "/" + fileName);
+                if (resource != null) {
+                    try (InputStream in = Files.newInputStream(resource)) {
+                        return JsonParser.parseReader(new InputStreamReader(in)).getAsJsonObject();
+                    } catch (Exception e) {
+                        LOGGER.debug("Failed to read default recipe {}/{}: {}", category, recipeId, e.getMessage());
+                        return null;
+                    }
+                }
             }
+        }
+
+        return null;
+    }
+
+    private static JsonObject readJson(Path path) {
+        if (!Files.exists(path)) return null;
+        try (InputStream in = Files.newInputStream(path)) {
+            return JsonParser.parseReader(new InputStreamReader(in)).getAsJsonObject();
         } catch (Exception e) {
-            LOGGER.debug("Failed to read default recipe {}/{}: {}", category, recipeId, e.getMessage());
+            LOGGER.debug("Failed to read default recipe {}: {}", path, e.getMessage());
             return null;
         }
     }

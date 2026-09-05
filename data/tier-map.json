@@ -70,6 +70,7 @@
     "minigun": "t6"
   },
   "ammo": {
+    "12g": "t1",
     "40mm": "t2",
     "rpg_rocket": "t3"
   },

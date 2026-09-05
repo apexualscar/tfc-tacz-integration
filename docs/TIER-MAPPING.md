@@ -42,7 +42,8 @@ with the matching TFC metal for that tier.
 
 ## Ammunition
 
-Only two ammo recipes use iron:
+Three ammo recipes use iron:
+- `12g` → t1 (wrought iron nuggets) — shotgun shells; the base for all shotgun ammunition
 - `40mm` → t2 (pig iron)
 - `rpg_rocket` → t3 (high carbon steel)
 

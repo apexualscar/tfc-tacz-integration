@@ -150,6 +150,7 @@ sniper_extended_mag_2 = "t5"
 sniper_extended_mag_3 = "t6"
 
 [recipe_tiers.ammo]
+12g = "t1"
 40mm = "t2"
 rpg_rocket = "t3"
 
