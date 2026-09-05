@@ -10,6 +10,7 @@ import com.mojang.logging.LogUtils;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,14 +42,23 @@ public class ModConfig {
 
     private static void copyIfMissing(String fileName) {
         Path target = CONFIG_DIR.resolve(fileName);
-        if (!Files.exists(target)) {
+        if (!Files.exists(target) || !defaultMatches(fileName, target)) {
             try (InputStream in = ModConfig.class.getResourceAsStream("/default_config/" + fileName)) {
                 if (in != null) {
-                    Files.copy(in, target);
+                    Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
                 }
             } catch (IOException e) {
-                LOGGER.warn("Failed to copy default config: {}", fileName, e);
+                LOGGER.warn("Failed to write default config: {}", fileName, e);
             }
+        }
+    }
+
+    private static boolean defaultMatches(String fileName, Path target) {
+        try (InputStream in = ModConfig.class.getResourceAsStream("/default_config/" + fileName)) {
+            if (in == null) return true;
+            return Arrays.equals(in.readAllBytes(), Files.readAllBytes(target));
+        } catch (IOException e) {
+            return false;
         }
     }
 
