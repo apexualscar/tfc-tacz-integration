@@ -48,6 +48,8 @@ public class GunpackGenerator {
                 count += generateCategory(category, gunpackDir);
             }
 
+            count += GunDataGenerator.generate();
+
             if (count > 0) {
                 Files.writeString(sentinel, String.valueOf(System.currentTimeMillis()));
             }
