@@ -4,7 +4,7 @@ A Forge mod that re-tiers every Timeless and Classics Zero (TACZ) crafting recip
 onto TerraFirmaCraft's iron progression.
 
 TACZ recipes all want `forge:ingots/iron`. TFC has no vanilla iron ingot, so none
-of them are craftable in a TFC world.
+of them are craftable in TFC.
 
 Iron in TFC comes in seven tiers, from wrought iron to blue/red steel. This mod
 maps each gun, attachment, and iron-using ammo recipe onto that ladder: cheaper,
@@ -34,7 +34,7 @@ TACZ version. New guns added in a TACZ update get picked up automatically.
 1. Install [TACZ](https://www.curseforge.com/minecraft/mc-mods/timeless-and-classics-zero)
    and [TerraFirmaCraft](https://www.curseforge.com/minecraft/mc-mods/terrafirmacraft).
 2. Drop this mod's `.jar` into your instance's `mods/` folder.
-3. Launch the world. No config, no commands.
+3. Launch. No config, no commands.
 
 ## Customizing the progression
 
