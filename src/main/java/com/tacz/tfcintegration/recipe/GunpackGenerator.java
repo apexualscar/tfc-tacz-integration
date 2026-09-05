@@ -88,11 +88,14 @@ public class GunpackGenerator {
 
             JsonObject original = readDefaultRecipe(category, recipeId);
             if (original == null) {
+                original = readBundledRecipe(dirName, recipeId);
+            }
+            if (original == null) {
                 LOGGER.warn("Default recipe not found: {}/{}", category, recipeId);
                 continue;
             }
 
-            RecipeTransformer.transform(original, tier);
+            RecipeTransformer.transform(original, tier, category);
             Path out = outDir.resolve(recipeId + ".json");
             Files.writeString(out, GSON.toJson(original));
             count++;
@@ -129,6 +132,18 @@ public class GunpackGenerator {
         }
 
         return null;
+    }
+
+    // Recipes with no default in the TACZ pack (e.g. loot-only guns) are bundled
+    // as resources and carried through verbatim instead of being skipped.
+    private static JsonObject readBundledRecipe(String dirName, String recipeId) {
+        try (InputStream in = GunpackGenerator.class.getResourceAsStream(
+                "/data/tacz_tfc_integration/static_recipes/" + dirName + "/" + recipeId + ".json")) {
+            if (in == null) return null;
+            return JsonParser.parseReader(new InputStreamReader(in)).getAsJsonObject();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static JsonObject readJson(Path path) {
