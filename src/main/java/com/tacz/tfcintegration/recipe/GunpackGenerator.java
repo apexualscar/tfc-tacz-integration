@@ -15,7 +15,7 @@ public class GunpackGenerator {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final String GUNPACK_NAME = "zz_tacz_tfc_integration";
 
-    private static final String[] CATEGORIES = {"gun", "ammo", "attachments"};
+    private static final String[] CATEGORIES = {"guns", "ammo", "attachments"};
 
     public static void generate() {
         Path gameDir = FMLPaths.GAMEDIR.get();
@@ -71,7 +71,7 @@ public class GunpackGenerator {
     }
 
     private static int generateCategory(String category, Path gunpackDir) throws IOException {
-        String dirName = "gun".equals(category) ? "gun" : category;
+        String dirName = "guns".equals(category) ? "gun" : category;
         Path outDir = gunpackDir.resolve("data").resolve("tacz").resolve("recipes").resolve(dirName);
         Files.createDirectories(outDir);
 
@@ -102,7 +102,7 @@ public class GunpackGenerator {
     }
 
     private static JsonObject readDefaultRecipe(String category, String recipeId) {
-        String dirName = "gun".equals(category) ? "gun" : category;
+        String dirName = "guns".equals(category) ? "gun" : category;
         String fileName = recipeId + ".json";
 
         Path unpacked = FMLPaths.GAMEDIR.get().resolve("tacz").resolve("tacz_default_gun")

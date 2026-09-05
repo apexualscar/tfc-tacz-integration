@@ -36,14 +36,22 @@ public class RecipeTransformer {
                         itemObj.addProperty("item", metal);
                     } else if ("forge:nuggets/iron".equals(tag)) {
                         itemObj.remove("tag");
-                        if ("minecraft:netherite_ingot".equals(metal)) {
-                            itemObj.addProperty("item", "minecraft:netherite_scrap");
-                        } else {
-                            itemObj.addProperty("item", "tfc:metal/nugget/" + metalName);
-                        }
+                        replaceNuggets(itemObj, mat, metal, metalName);
                     }
                 }
             }
+        }
+    }
+
+    private static void replaceNuggets(JsonObject itemObj, JsonObject mat, String metal, String metalName) {
+        if ("minecraft:netherite_ingot".equals(metal)) {
+            itemObj.addProperty("item", "minecraft:netherite_scrap");
+            return;
+        }
+        itemObj.addProperty("item", "tfc:metal/ingot/" + metalName);
+        if (mat.has("count")) {
+            int count = mat.get("count").getAsInt();
+            mat.addProperty("count", Math.max(1, Math.round(count / 9.0f)));
         }
     }
 
@@ -63,7 +71,7 @@ public class RecipeTransformer {
                     if ("minecraft:netherite_ingot".equals(metal)) {
                         slot.addProperty("item", "minecraft:netherite_scrap");
                     } else {
-                        slot.addProperty("item", "tfc:metal/nugget/" + metalName);
+                        slot.addProperty("item", "tfc:metal/ingot/" + metalName);
                     }
                 }
             } else if (slot.has("item")) {
